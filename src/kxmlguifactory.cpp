@@ -677,7 +677,9 @@ void KXMLGUIFactoryPrivate::configureAction(QAction *action, const QDomAttr &att
         if (attrName == QStringLiteral("globalShortcut")) {
             KGlobalAccel::self()->setShortcut(action, QKeySequence::listFromString(attribute.value()));
         } else {
-            action->setShortcuts(QKeySequence::listFromString(attribute.value()));
+            QList<QKeySequence> shortcuts = QKeySequence::listFromString(attribute.value());
+            while(shortcuts.length() > 2) shortcuts.removeLast();
+            action->setShortcuts(shortcuts);
         }
         if (shortcutOption & KXMLGUIFactoryPrivate::SetDefaultShortcut) {
             action->setProperty("defaultShortcuts", QVariant::fromValue(QKeySequence::listFromString(attribute.value())));
@@ -729,6 +731,7 @@ void KXMLGUIFactoryPrivate::applyShortcutScheme(KXMLGUIClient *client, const QLi
             QVariant savedDefaultShortcut = action->property("_k_DefaultShortcut");
             if (savedDefaultShortcut.isValid()) {
                 QList<QKeySequence> shortcut = savedDefaultShortcut.value<QList<QKeySequence> >();
+                while(shortcut.length() > 2) shortcut.removeLast();
                 //qDebug() << "scheme said" << shortcut.toString() << "for action" << kaction->objectName();
                 action->setShortcuts(shortcut);
                 action->setProperty("defaultShortcuts", QVariant::fromValue(shortcut));

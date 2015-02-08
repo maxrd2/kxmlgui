@@ -597,8 +597,13 @@ bool KActionCollectionPrivate::writeKXMLGUIConfigFile()
         }
 
         bool bSameAsDefault = (action->shortcuts() == q->defaultShortcuts(action));
+        QList<QKeySequence> shortcuts = action->shortcuts();
+        if(shortcuts.length() > 2) {
+            while(shortcuts.length() > 2) shortcuts.removeLast();
+            action->setShortcuts(shortcuts);
+        }
         qCDebug(DEBUG_KXMLGUI) << "name = " << actionName
-                 << " shortcut = " << QKeySequence::listToString(action->shortcuts())
+                 << " shortcut = " << QKeySequence::listToString(shortcuts)
                  << " globalshortcut = " << QKeySequence::listToString(KGlobalAccel::self()->shortcut(action))
                  << " def = " << QKeySequence::listToString(q->defaultShortcuts(action));
 
@@ -616,7 +621,7 @@ bool KActionCollectionPrivate::writeKXMLGUIConfigFile()
                 elem.removeChild(act_elem);
             }
         } else {
-            act_elem.setAttribute(attrShortcut, QKeySequence::listToString(action->shortcuts()));
+            act_elem.setAttribute(attrShortcut, QKeySequence::listToString(shortcuts));
         }
     }
 
